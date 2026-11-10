@@ -1,0 +1,1293 @@
+<!DOCTYPE html>
+<html lang="id" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Pelaporan Bullying - BK SMKN 5 Makassar</title>
+    
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        emerald: {
+                            400: '#34d399',
+                            500: '#10b981',
+                            600: '#059669',
+                            900: '#064e3b',
+                            950: '#022c22'
+                        },
+                        dark: {
+                            bg: '#090d16',
+                            card: '#111827',
+                            border: '#1f2937',
+                            input: '#1a2234'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Plus Jakarta Sans', 'sans-serif']
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Google Fonts & FontAwesome -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
+    <style>
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: #090d16;
+            color: #f3f4f6;
+        }
+
+        /* Custom glow effects */
+        .glow-emerald {
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.25);
+        }
+        .glow-red {
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.3);
+        }
+        
+        /* Custom scrollbar */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #090d16;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #1f2937;
+            border-radius: 4px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #10b981;
+        }
+
+        @media print {
+            .no-print { display: none !important; }
+            .print-only { display: block !important; }
+            body { background: white !important; color: black !important; }
+            .print-card { background: white !important; color: black !important; border: 1px solid #ccc !important; }
+        }
+    </style>
+</head>
+<body class="min-h-screen flex flex-col justify-between selection:bg-emerald-500 selection:text-slate-900">
+
+    <!-- TOP HEADER / BRANDING -->
+    <header class="bg-dark-card/90 backdrop-blur-md border-b border-emerald-500/20 sticky top-0 z-40 no-print">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3.5 flex flex-col sm:flex-row items-center justify-between gap-3">
+            
+            <!-- Logo & Title -->
+            <div class="flex items-center space-x-3 w-full sm:w-auto justify-between sm:justify-start">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 bg-gradient-to-tr from-emerald-600 to-teal-400 rounded-xl flex items-center justify-center text-slate-950 font-extrabold text-xl shadow-lg shadow-emerald-500/20">
+                        <i class="fa-solid fa-shield-heart"></i>
+                    </div>
+                    <div>
+                        <h1 class="font-extrabold text-base sm:text-lg tracking-tight text-white flex items-center gap-2">
+                            LAPOR BK <span class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-semibold px-2 py-0.5 rounded-full">SMKN 5 MAKASSAR</span>
+                        </h1>
+                        <p class="text-xs text-slate-400 font-medium">Layanan Bimbingan & Konseling Anti-Bullying</p>
+                    </div>
+                </div>
+
+                <!-- Mobile Nav Switch Button -->
+                <div class="sm:hidden">
+                    <button onclick="promptPinAndSwitchView()" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 px-3 py-1.5 rounded-xl text-xs font-bold flex items-center gap-1.5 shadow">
+                        <i id="mobile-toggle-icon" class="fa-solid fa-user-shield"></i>
+                        <span id="mobile-toggle-text">Dashboard BK</span>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Role View Switcher & Notification Status -->
+            <div class="flex items-center space-x-3 w-full sm:w-auto justify-end">
+                <!-- Push Notification Permission Toggle -->
+                <button id="notif-perm-btn" onclick="requestNotificationPermission()" class="text-xs bg-dark-input hover:bg-slate-800 text-slate-300 border border-slate-700 px-3 py-1.5 rounded-xl flex items-center gap-2 transition">
+                    <i class="fa-solid fa-bell text-amber-400 animate-pulse"></i>
+                    <span id="notif-status-text">Aktifkan Notifikasi HP</span>
+                </button>
+
+                <!-- Navigation Tabs (Desktop) -->
+                <div class="hidden sm:flex bg-dark-input p-1 rounded-xl border border-slate-800">
+                    <button id="btn-mode-student" onclick="switchView('student')" class="px-4 py-1.5 rounded-lg text-xs font-bold transition duration-200 bg-emerald-500 text-slate-950 shadow-md">
+                        <i class="fa-solid fa-paper-plane mr-1.5"></i> Form Laporan Siswa
+                    </button>
+                    <button id="btn-mode-teacher" onclick="promptPinAndSwitchView()" class="px-4 py-1.5 rounded-lg text-xs font-bold transition duration-200 text-slate-400 hover:text-white">
+                        <i class="fa-solid fa-user-shield mr-1.5"></i> Dashboard BK (Guru)
+                    </button>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- MAIN CONTAINER -->
+    <main class="max-w-7xl w-full mx-auto px-4 sm:px-6 py-6 flex-1">
+
+        <!-- PRIVACY BANNER -->
+        <div id="confidential-banner" class="mb-6 bg-gradient-to-r from-emerald-950/80 via-dark-card to-slate-900 rounded-2xl p-4 sm:p-5 border border-emerald-500/30 shadow-lg relative overflow-hidden no-print">
+            <div class="relative z-10 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
+                <div class="flex items-start space-x-3.5">
+                    <div class="p-3 bg-emerald-500/10 text-emerald-400 rounded-xl border border-emerald-500/20 text-xl flex-shrink-0">
+                        <i class="fa-solid fa-user-lock"></i>
+                    </div>
+                    <div>
+                        <h2 class="font-bold text-sm sm:text-base text-emerald-400">Jaminan Kerahasiaan Identitas Siswa</h2>
+                        <p class="text-xs text-slate-300 mt-0.5 leading-relaxed">
+                            Laporan kamu akan ditangani langsung oleh Tim Guru Bimbingan dan Konseling (BK) SMKN 5 Makassar secara rahasia dan aman. Jangan takut untuk melapor!
+                        </p>
+                    </div>
+                </div>
+                <div class="flex items-center space-x-2 w-full sm:w-auto justify-end">
+                    <a href="tel:112" class="text-xs bg-red-600/20 hover:bg-red-600/30 text-red-400 border border-red-500/30 font-bold px-3 py-2 rounded-xl transition flex items-center gap-1.5 whitespace-nowrap">
+                        <i class="fa-solid fa-phone-volume"></i> Telepon Darurat 112
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 1: STUDENT REPORTING PORTAL           -->
+        <!-- ========================================== -->
+        <div id="view-student" class="space-y-6">
+            <div class="bg-dark-card rounded-2xl border border-slate-800 shadow-2xl overflow-hidden">
+                <div class="bg-gradient-to-r from-slate-900 to-dark-card p-5 border-b border-slate-800 flex items-center justify-between">
+                    <div class="flex items-center space-x-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 flex items-center justify-center text-xl font-bold">
+                            <i class="fa-solid fa-file-pen"></i>
+                        </div>
+                        <div>
+                            <h2 class="text-lg font-bold text-white">Formulir Pelaporan Perundungan / Bullying</h2>
+                            <p class="text-xs text-slate-400">Isi data laporan dengan jujur agar Tim BK dapat segera menindaklanjuti.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <form id="bullying-form" onsubmit="submitReport(event)" class="p-5 sm:p-6 space-y-6">
+                    
+                    <!-- IDENTITY MODE (NAMED / ANONYMOUS) -->
+                    <div class="bg-dark-input p-4 rounded-xl border border-slate-800 space-y-4">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-emerald-400">
+                            1. Identitas Pelapor
+                        </label>
+                        <div class="flex items-center gap-4 flex-wrap">
+                            <label class="flex items-center space-x-2 cursor-pointer bg-slate-900/60 px-3 py-2 rounded-xl border border-slate-700">
+                                <input type="radio" name="anon_option" value="named" checked onchange="toggleAnonMode(false)" class="text-emerald-500 focus:ring-emerald-500 bg-slate-800 border-slate-600">
+                                <span class="text-xs font-semibold text-slate-200">Sebutkan Nama (Sangat Direkomendasikan)</span>
+                            </label>
+                            <label class="flex items-center space-x-2 cursor-pointer bg-slate-900/60 px-3 py-2 rounded-xl border border-slate-700">
+                                <input type="radio" name="anon_option" value="anon" onchange="toggleAnonMode(true)" class="text-emerald-500 focus:ring-emerald-500 bg-slate-800 border-slate-600">
+                                <span class="text-xs font-semibold text-slate-200">Kirim Sebagai Anonim (Rahasia)</span>
+                            </label>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 pt-1">
+                            <!-- Nama Lengkap -->
+                            <div>
+                                <label for="reporter-name" class="block text-xs font-bold text-slate-300 mb-1.5">
+                                    Nama Lengkap Pelapor <span class="text-red-400">*</span>
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
+                                        <i class="fa-solid fa-user"></i>
+                                    </span>
+                                    <input type="text" id="reporter-name" required placeholder="Masukkan nama lengkap..." class="w-full pl-9 pr-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                                </div>
+                            </div>
+
+                            <!-- Nomor WhatsApp -->
+                            <div>
+                                <label for="reporter-phone" class="block text-xs font-bold text-slate-300 mb-1.5">
+                                    Nomor WhatsApp Siswa / Ortub
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
+                                        <i class="fa-brands fa-whatsapp"></i>
+                                    </span>
+                                    <input type="tel" id="reporter-phone" placeholder="08xxxxxxxxxx" class="w-full pl-9 pr-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent">
+                                </div>
+                            </div>
+
+                            <!-- Dropdown 44 Kelas Lengkap SMKN 5 Makassar -->
+                            <div>
+                                <label for="reporter-class" class="block text-xs font-bold text-slate-300 mb-1.5">
+                                    Kelas Siswa SMKN 5 Makassar <span class="text-red-400">*</span>
+                                </label>
+                                <div class="relative">
+                                    <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-500">
+                                        <i class="fa-solid fa-graduation-cap"></i>
+                                    </span>
+                                    <select id="reporter-class" required class="w-full pl-9 pr-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                        <option value="" disabled selected>-- Pilih Kelas Siswa --</option>
+                                        
+                                        <optgroup label="Tingkat Kelas X">
+                                            <option value="X TKP">X TKP</option>
+                                            <option value="X ELIN 1">X ELIN 1</option>
+                                            <option value="X ELIN 2">X ELIN 2</option>
+                                            <option value="X ELIN 3">X ELIN 3</option>
+                                            <option value="X LISTRIK 1">X LISTRIK 1</option>
+                                            <option value="X LISTRIK 2">X LISTRIK 2</option>
+                                            <option value="X LISTRIK 3">X LISTRIK 3</option>
+                                            <option value="X LISTRIK 4">X LISTRIK 4</option>
+                                            <option value="X OT 1">X OT 1</option>
+                                            <option value="X OT 2">X OT 2</option>
+                                            <option value="X OT 3">X OT 3</option>
+                                            <option value="X OT 4">X OT 4</option>
+                                        </optgroup>
+
+                                        <optgroup label="Tingkat Kelas XI">
+                                            <option value="XI KGS">XI KGS</option>
+                                            <option value="XI MEKA">XI MEKA</option>
+                                            <option value="XI ELIN">XI ELIN</option>
+                                            <option value="XI TFLM 1">XI TFLM 1</option>
+                                            <option value="XI TFLM 2">XI TFLM 2</option>
+                                            <option value="XI TITL">XI TITL</option>
+                                            <option value="XI TPTU">XI TPTU</option>
+                                            <option value="XI TKR">XI TKR</option>
+                                            <option value="XI TBKR">XI TBKR</option>
+                                            <option value="XI AB">XI AB</option>
+                                            <option value="XI TKJ 1">XI TKJ 1</option>
+                                            <option value="XI TKJ 2">XI TKJ 2</option>
+                                        </optgroup>
+
+                                        <optgroup label="Tingkat Kelas XII">
+                                            <option value="XII KGSP">XII KGSP</option>
+                                            <option value="XII TFLM">XII TFLM</option>
+                                            <option value="XII TPL">XII TPL</option>
+                                            <option value="XII TKJ">XII TKJ</option>
+                                            <option value="XII MEKA">XII MEKA</option>
+                                            <option value="XII TKJ 1">XII TKJ 1</option>
+                                            <option value="XII TKJ 2">XII TKJ 2</option>
+                                            <option value="XII ELIN">XII ELIN</option>
+                                            <option value="XII TITL">XII TITL</option>
+                                            <option value="XII TPTU">XII TPTU</option>
+                                            <option value="XII TKR 1">XII TKR 1</option>
+                                            <option value="XII TKR 2">XII TKR 2</option>
+                                            <option value="XII AB">XII AB</option>
+                                        </optgroup>
+
+                                        <optgroup label="Tingkat Kelas XIII (Program 4 Tahun)">
+                                            <option value="XIII KGSP 1">XIII KGSP 1</option>
+                                            <option value="XIII KGSP 2">XIII KGSP 2</option>
+                                            <option value="XIII MEKA">XIII MEKA</option>
+                                            <option value="XIII TFLM">XIII TFLM</option>
+                                            <option value="XIII GEOS">XIII GEOS</option>
+                                            <option value="XIII TITL">XIII TITL</option>
+                                        </optgroup>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- INCIDENT DETAILS & GPS GEOLOCATION -->
+                    <div class="bg-dark-input p-4 rounded-xl border border-slate-800 space-y-4">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-emerald-400">
+                            2. Detail Waktu & Lokasi Kejadian (GPS)
+                        </label>
+                        <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                            <!-- Tanggal & Waktu -->
+                            <div>
+                                <label for="incident-datetime" class="block text-xs font-bold text-slate-300 mb-1.5">
+                                    Tanggal & Waktu Kejadian <span class="text-red-400">*</span>
+                                </label>
+                                <input type="datetime-local" id="incident-datetime" required class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                            </div>
+
+                            <!-- Lokasi Manual & GPS Button -->
+                            <div class="md:col-span-2">
+                                <label for="incident-location" class="block text-xs font-bold text-slate-300 mb-1.5">
+                                    Lokasi Kejadian (Area SMKN 5 Makassar / Sekitar) <span class="text-red-400">*</span>
+                                </label>
+                                <div class="flex flex-col sm:flex-row gap-2">
+                                    <input type="text" id="incident-location" required placeholder="Contoh: Belakang Kantin, Gazebo, Lab TKJ, Bengkel TFLM..." class="flex-1 px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                    <button type="button" onclick="getCurrentLocationGPS()" class="bg-slate-800 hover:bg-slate-700 text-emerald-400 border border-emerald-500/30 font-bold px-3 py-2 rounded-xl text-xs flex items-center justify-center gap-1.5 transition whitespace-nowrap">
+                                        <i class="fa-solid fa-location-crosshairs text-amber-400"></i> Ambil GPS Saya
+                                    </button>
+                                </div>
+                                <div class="mt-1.5 flex items-center justify-between text-[11px]">
+                                    <span id="gps-status-badge" class="text-slate-500 italic">GPS belum diambil</span>
+                                    <input type="hidden" id="incident-gps" value="">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- CATEGORY, URGENCY & KRONOLOGI -->
+                    <div class="bg-dark-input p-4 rounded-xl border border-slate-800 space-y-4">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-emerald-400">
+                            3. Jenis Perundungan & Kronologi
+                        </label>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Kategori Perundungan -->
+                            <div>
+                                <label for="incident-category" class="block text-xs font-bold text-slate-300 mb-1.5">
+                                    Kategori Perundungan <span class="text-red-400">*</span>
+                                </label>
+                                <select id="incident-category" required class="w-full px-3.5 py-2.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white focus:outline-none focus:ring-2 focus:ring-emerald-500">
+                                    <option value="Perundungan Fisik">Perundungan Fisik (Pemukulan, Menendang, Merusak Barang)</option>
+                                    <option value="Perundungan Verbal">Perundungan Verbal (Mengejek, Mengancam, Merendahkan)</option>
+                                    <option value="Cyberbullying">Cyberbullying / Perundungan Daring (Medsos, WA Group)</option>
+                                    <option value="Sosial / Relasional">Sosial / Relasional (Pengucilan, Menyebar Rumor)</option>
+                                    <option value="Perundungan Seksual">Perundungan Seksual (Pelecehan Verbal/Fisik)</option>
+                                    <option value="Pemerasan / Pemalakan">Pemerasan / Pemalakan (Paksaan Uang/Barang)</option>
+                                </select>
+                            </div>
+
+                            <!-- Urgensi Penanganan -->
+                            <div>
+                                <label class="block text-xs font-bold text-slate-300 mb-1.5">
+                                    Tingkat Urgensi Penanganan BK <span class="text-red-400">*</span>
+                                </label>
+                                <div class="grid grid-cols-3 gap-2">
+                                    <label class="border border-slate-700 bg-slate-900/60 rounded-xl p-2 flex flex-col items-center justify-center cursor-pointer hover:border-emerald-500 transition has-[:checked]:bg-emerald-950/60 has-[:checked]:border-emerald-500">
+                                        <input type="radio" name="urgency_level" value="Rendah" class="sr-only" checked>
+                                        <i class="fa-solid fa-circle-info text-emerald-400 mb-0.5 text-xs"></i>
+                                        <span class="text-[11px] font-bold text-slate-200">Rendah</span>
+                                    </label>
+
+                                    <label class="border border-slate-700 bg-slate-900/60 rounded-xl p-2 flex flex-col items-center justify-center cursor-pointer hover:border-amber-500 transition has-[:checked]:bg-amber-950/60 has-[:checked]:border-amber-500">
+                                        <input type="radio" name="urgency_level" value="Sedang" class="sr-only">
+                                        <i class="fa-solid fa-triangle-exclamation text-amber-400 mb-0.5 text-xs"></i>
+                                        <span class="text-[11px] font-bold text-slate-200">Sedang</span>
+                                    </label>
+
+                                    <label class="border border-slate-700 bg-slate-900/60 rounded-xl p-2 flex flex-col items-center justify-center cursor-pointer hover:border-red-500 transition has-[:checked]:bg-red-950/60 has-[:checked]:border-red-500">
+                                        <input type="radio" name="urgency_level" value="Darurat" class="sr-only">
+                                        <i class="fa-solid fa-skull-crossbones text-red-400 mb-0.5 text-xs"></i>
+                                        <span class="text-[11px] font-bold text-slate-200">Darurat</span>
+                                    </label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Kronologi Textarea -->
+                        <div>
+                            <label for="incident-description" class="block text-xs font-bold text-slate-300 mb-1.5">
+                                Kronologi Kejadian Lengkap <span class="text-red-400">*</span>
+                            </label>
+                            <textarea id="incident-description" required rows="3" placeholder="Jelaskan secara detail bagaimana kejadian berlangsung, terduga pelaku/saksi, dan dampak yang dirasakan..." class="w-full p-3.5 bg-slate-900 border border-slate-700 rounded-xl text-xs text-white placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-emerald-500"></textarea>
+                        </div>
+                    </div>
+
+                    <!-- MEDIA ATTACHMENTS (LIVE PHOTO & LIVE VIDEO) -->
+                    <div class="bg-dark-input p-4 rounded-xl border border-slate-800 space-y-4">
+                        <label class="block text-xs font-bold uppercase tracking-wider text-emerald-400">
+                            4. Lampiran Bukti Foto & Video (Live / File Upload)
+                        </label>
+                        
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <!-- Foto Upload & Live Camera Snapshot -->
+                            <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-camera text-emerald-400"></i> Upload / Ambil Foto Bukti
+                                    </label>
+                                </div>
+                                
+                                <div class="flex items-center gap-2">
+                                    <label for="evidence-photo" class="flex-1 border border-dashed border-slate-700 hover:border-emerald-500 rounded-xl p-2.5 text-center cursor-pointer bg-slate-950 transition flex items-center justify-center gap-2 text-xs font-medium text-slate-300">
+                                        <i class="fa-solid fa-upload text-emerald-400"></i>
+                                        <span id="upload-label-text">Pilih File Foto</span>
+                                        <input type="file" id="evidence-photo" accept="image/*" onchange="previewUploadedImage(event)" class="hidden">
+                                    </label>
+
+                                    <!-- Direct Photo Preview -->
+                                    <div id="photo-preview-box" class="w-12 h-12 rounded-xl border border-slate-700 bg-slate-950 hidden overflow-hidden relative flex-shrink-0">
+                                        <img id="photo-preview-img" src="" alt="Bukti Foto" class="w-full h-full object-cover">
+                                        <button type="button" onclick="removePhoto()" class="absolute top-0.5 right-0.5 bg-red-600 text-white w-4 h-4 rounded-full flex items-center justify-center text-[9px]">
+                                            <i class="fa-solid fa-xmark"></i>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Live Video Recording MediaRecorder -->
+                            <div class="bg-slate-900/80 p-3.5 rounded-xl border border-slate-800 space-y-3">
+                                <div class="flex items-center justify-between">
+                                    <label class="text-xs font-bold text-slate-300 flex items-center gap-1.5">
+                                        <i class="fa-solid fa-video text-indigo-400"></i> Rekam Video Live Kamera
+                                    </label>
+                                </div>
+
+                                <div class="flex items-center gap-2">
+                                    <button type="button" id="btn-start-video" onclick="startCameraLive()" class="bg-indigo-600/20 hover:bg-indigo-600/30 text-indigo-300 border border-indigo-500/30 font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 transition">
+                                        <i class="fa-solid fa-camera-rotate"></i> Buka Kamera
+                                    </button>
+                                    <button type="button" id="btn-record-video" onclick="toggleRecordVideo()" disabled class="bg-red-600 hover:bg-red-700 text-white font-bold px-3 py-2 rounded-xl text-xs flex items-center gap-1.5 shadow disabled:opacity-40">
+                                        <i class="fa-solid fa-circle"></i> Rekam Video
+                                    </button>
+                                </div>
+
+                                <!-- Camera Live Feed Box & Recorded Video Preview -->
+                                <div id="camera-container" class="hidden relative bg-black rounded-xl overflow-hidden border border-slate-700 max-h-36">
+                                    <video id="webcam-feed" autoplay playsinline muted class="w-full h-32 object-cover"></video>
+                                    <video id="recorded-video-preview" controls class="w-full h-32 object-cover hidden"></video>
+                                    <span id="recording-status-tag" class="absolute top-2 left-2 bg-red-600 text-white text-[9px] font-bold px-2 py-0.5 rounded-full animate-pulse hidden">REC</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- SUBMIT BUTTONS -->
+                    <div class="pt-2 flex flex-col sm:flex-row items-center justify-between gap-3">
+                        <p class="text-xs text-slate-400 flex items-center gap-1.5">
+                            <i class="fa-solid fa-shield-halved text-emerald-400"></i>
+                            Data Anda terenkripsi secara aman di server BK SMKN 5 Makassar.
+                        </p>
+                        <button type="submit" id="submit-btn" class="w-full sm:w-auto bg-gradient-to-r from-emerald-500 to-teal-400 hover:from-teal-400 hover:to-emerald-500 text-slate-950 font-extrabold px-8 py-3.5 rounded-xl shadow-lg shadow-emerald-500/20 hover:shadow-emerald-500/30 transition duration-200 flex items-center justify-center gap-2 text-sm">
+                            <i class="fa-solid fa-paper-plane"></i>
+                            <span>KIRIM LAPORAN SEKARANG</span>
+                        </button>
+                    </div>
+                </form>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- VIEW 2: TEACHER / BK COUNSELING DASHBOARD  -->
+        <!-- ========================================== -->
+        <div id="view-teacher" class="hidden space-y-6">
+
+            <!-- DASHBOARD METRICS SUMMARY -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 no-print">
+                <div class="bg-dark-card p-4 rounded-2xl border border-slate-800 shadow-lg flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-slate-400 uppercase tracking-wider">Total Masuk Laporan</p>
+                        <h3 id="stat-total" class="text-2xl font-extrabold text-white mt-1">0</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-blue-500/10 border border-blue-500/20 text-blue-400 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-folder-open"></i>
+                    </div>
+                </div>
+
+                <div class="bg-dark-card p-4 rounded-2xl border border-slate-800 shadow-lg flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-red-400 uppercase tracking-wider">Belum Diproses</p>
+                        <h3 id="stat-baru" class="text-2xl font-extrabold text-red-400 mt-1">0</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-red-500/10 border border-red-500/20 text-red-400 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-bell animate-bounce"></i>
+                    </div>
+                </div>
+
+                <div class="bg-dark-card p-4 rounded-2xl border border-slate-800 shadow-lg flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-amber-400 uppercase tracking-wider">Dalam Bimbingan BK</p>
+                        <h3 id="stat-proses" class="text-2xl font-extrabold text-amber-400 mt-1">0</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-400 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-comments"></i>
+                    </div>
+                </div>
+
+                <div class="bg-dark-card p-4 rounded-2xl border border-slate-800 shadow-lg flex items-center justify-between">
+                    <div>
+                        <p class="text-xs font-bold text-emerald-400 uppercase tracking-wider">Kasus Selesai</p>
+                        <h3 id="stat-selesai" class="text-2xl font-extrabold text-emerald-400 mt-1">0</h3>
+                    </div>
+                    <div class="w-10 h-10 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 flex items-center justify-center text-lg font-bold">
+                        <i class="fa-solid fa-circle-check"></i>
+                    </div>
+                </div>
+            </div>
+
+            <!-- FILTERS & PRINT CONTROLS -->
+            <div class="bg-dark-card p-4 rounded-2xl border border-slate-800 shadow-lg flex flex-col md:flex-row items-center justify-between gap-4 no-print">
+                <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                    <!-- Filter Kelas -->
+                    <div class="flex items-center space-x-2">
+                        <label class="text-xs font-bold text-slate-400">Kelas:</label>
+                        <select id="filter-class" onchange="renderReportsTable()" class="bg-slate-900 border border-slate-700 text-xs text-white rounded-xl px-3 py-2 focus:ring-emerald-500">
+                            <option value="ALL">Semua Kelas SMKN 5</option>
+                            <optgroup label="Tingkat X">
+                                <option value="X TKP">X TKP</option>
+                                <option value="X ELIN 1">X ELIN 1</option>
+                                <option value="X ELIN 2">X ELIN 2</option>
+                                <option value="X ELIN 3">X ELIN 3</option>
+                                <option value="X LISTRIK 1">X LISTRIK 1</option>
+                                <option value="X LISTRIK 2">X LISTRIK 2</option>
+                                <option value="X LISTRIK 3">X LISTRIK 3</option>
+                                <option value="X LISTRIK 4">X LISTRIK 4</option>
+                                <option value="X OT 1">X OT 1</option>
+                                <option value="X OT 2">X OT 2</option>
+                                <option value="X OT 3">X OT 3</option>
+                                <option value="X OT 4">X OT 4</option>
+                            </optgroup>
+                            <optgroup label="Tingkat XI">
+                                <option value="XI KGS">XI KGS</option>
+                                <option value="XI MEKA">XI MEKA</option>
+                                <option value="XI ELIN">XI ELIN</option>
+                                <option value="XI TFLM 1">XI TFLM 1</option>
+                                <option value="XI TFLM 2">XI TFLM 2</option>
+                                <option value="XI TITL">XI TITL</option>
+                                <option value="XI TPTU">XI TPTU</option>
+                                <option value="XI TKR">XI TKR</option>
+                                <option value="XI TBKR">XI TBKR</option>
+                                <option value="XI AB">XI AB</option>
+                                <option value="XI TKJ 1">XI TKJ 1</option>
+                                <option value="XI TKJ 2">XI TKJ 2</option>
+                            </optgroup>
+                            <optgroup label="Tingkat XII">
+                                <option value="XII KGSP">XII KGSP</option>
+                                <option value="XII TFLM">XII TFLM</option>
+                                <option value="XII TPL">XII TPL</option>
+                                <option value="XII TKJ">XII TKJ</option>
+                                <option value="XII MEKA">XII MEKA</option>
+                                <option value="XII TKJ 1">XII TKJ 1</option>
+                                <option value="XII TKJ 2">XII TKJ 2</option>
+                                <option value="XII ELIN">XII ELIN</option>
+                                <option value="XII TITL">XII TITL</option>
+                                <option value="XII TPTU">XII TPTU</option>
+                                <option value="XII TKR 1">XII TKR 1</option>
+                                <option value="XII TKR 2">XII TKR 2</option>
+                                <option value="XII AB">XII AB</option>
+                            </optgroup>
+                            <optgroup label="Tingkat XIII">
+                                <option value="XIII KGSP 1">XIII KGSP 1</option>
+                                <option value="XIII KGSP 2">XIII KGSP 2</option>
+                                <option value="XIII MEKA">XIII MEKA</option>
+                                <option value="XIII TFLM">XIII TFLM</option>
+                                <option value="XIII GEOS">XIII GEOS</option>
+                                <option value="XIII TITL">XIII TITL</option>
+                            </optgroup>
+                        </select>
+                    </div>
+
+                    <!-- Filter Status -->
+                    <div class="flex items-center space-x-2">
+                        <label class="text-xs font-bold text-slate-400">Status:</label>
+                        <select id="filter-status" onchange="renderReportsTable()" class="bg-slate-900 border border-slate-700 text-xs text-white rounded-xl px-3 py-2 focus:ring-emerald-500">
+                            <option value="ALL">Semua Status</option>
+                            <option value="Belum Diproses">Belum Diproses</option>
+                            <option value="Dalam Bimbingan">Dalam Bimbingan</option>
+                            <option value="Selesai">Selesai</option>
+                        </select>
+                    </div>
+                </div>
+
+                <!-- Action Controls -->
+                <div class="flex items-center space-x-2 w-full md:w-auto justify-end">
+                    <button onclick="resetToDummyData()" class="text-xs bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-3 py-2 rounded-xl transition border border-slate-700">
+                        <i class="fa-solid fa-arrows-rotate mr-1"></i> Reset Contoh
+                    </button>
+                    <button onclick="window.print()" class="text-xs bg-emerald-500 hover:bg-emerald-600 text-slate-950 font-extrabold px-4 py-2 rounded-xl transition shadow">
+                        <i class="fa-solid fa-print mr-1"></i> Cetak Rekap BK
+                    </button>
+                </div>
+            </div>
+
+            <!-- TABLE REPORTS DISPLAY -->
+            <div class="bg-dark-card rounded-2xl border border-slate-800 shadow-2xl overflow-hidden print-card">
+                <div class="p-4 bg-slate-900 text-white flex items-center justify-between border-b border-slate-800">
+                    <h3 class="font-bold text-sm flex items-center gap-2">
+                        <i class="fa-solid fa-table-list text-emerald-400"></i>
+                        Daftar Laporan Masuk Tim Bimbingan Konseling
+                    </h3>
+                    <span id="table-count-badge" class="text-xs bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 font-bold px-2.5 py-0.5 rounded-full">
+                        0 Laporan
+                    </span>
+                </div>
+
+                <div class="overflow-x-auto">
+                    <table class="w-full text-left border-collapse">
+                        <thead>
+                            <tr class="bg-slate-950/80 border-b border-slate-800 text-[11px] font-extrabold uppercase text-slate-400 tracking-wider">
+                                <th class="p-3.5">ID / Tanggal</th>
+                                <th class="p-3.5">Pelapor & Kelas</th>
+                                <th class="p-3.5">Kategori & GPS</th>
+                                <th class="p-3.5">Urgensi</th>
+                                <th class="p-3.5">Bukti Media</th>
+                                <th class="p-3.5">Status BK</th>
+                                <th class="p-3.5 text-center no-print">Tindakan BK</th>
+                            </tr>
+                        </thead>
+                        <tbody id="reports-table-body" class="divide-y divide-slate-800/60 text-xs">
+                            <!-- Injected by JavaScript -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- FOOTER CREDIT -->
+    <footer class="bg-dark-card border-t border-slate-800 text-slate-400 text-xs py-4 mt-8 no-print">
+        <div class="max-w-7xl mx-auto px-4 flex flex-col sm:flex-row items-center justify-between gap-2 text-center sm:text-left">
+            <div>
+                <span class="font-bold text-white">Sistem Pelaporan Bullying / Perundungan BK</span> &copy; SMK Negeri 5 Makassar
+            </div>
+            <div class="flex items-center space-x-3 text-slate-400">
+                <span class="hover:text-emerald-400"><i class="fa-solid fa-graduation-cap mr-1"></i> Bimbingan Konseling</span>
+                <span>•</span>
+                <span class="hover:text-emerald-400"><i class="fa-solid fa-shield-heart mr-1"></i> Anti Bullying</span>
+            </div>
+        </div>
+    </footer>
+
+    <!-- DETAIL & COUNSELING ACTION MODAL -->
+    <div id="detail-modal" class="fixed inset-0 bg-slate-950/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-200 no-print">
+        <div class="bg-dark-card border border-slate-800 rounded-2xl max-w-2xl w-full max-h-[90vh] flex flex-col shadow-2xl overflow-hidden transform scale-95 transition-transform duration-200">
+            <!-- Modal Header -->
+            <div class="bg-slate-900 text-white p-4 flex items-center justify-between border-b border-slate-800">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-file-invoice text-emerald-400 text-lg"></i>
+                    <h3 class="font-bold text-base" id="modal-title">Detail Laporan BK</h3>
+                </div>
+                <button onclick="closeDetailModal()" class="text-slate-400 hover:text-white text-lg p-1">
+                    <i class="fa-solid fa-xmark"></i>
+                </button>
+            </div>
+
+            <!-- Modal Content (Scrollable) -->
+            <div id="modal-body-content" class="p-6 overflow-y-auto space-y-4 text-xs text-slate-300">
+                <!-- Injected via JavaScript -->
+            </div>
+
+            <!-- Modal Action Footer -->
+            <div class="bg-slate-900/80 p-4 border-t border-slate-800 flex flex-wrap items-center justify-between gap-2">
+                <button id="modal-wa-btn" onclick="" class="bg-emerald-600 hover:bg-emerald-500 text-slate-950 font-extrabold px-3.5 py-2 rounded-xl transition flex items-center gap-1.5 text-xs shadow">
+                    <i class="fa-brands fa-whatsapp text-sm"></i> Kirim Notifikasi WA Ke Guru BK
+                </button>
+                
+                <div class="flex items-center space-x-2">
+                    <button onclick="closeDetailModal()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 font-semibold px-4 py-2 rounded-xl transition text-xs">
+                        Batal
+                    </button>
+                    <button onclick="saveModalChanges()" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-extrabold px-4 py-2 rounded-xl shadow transition text-xs">
+                        Simpan Catatan BK
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- AUDIO SYNTHESIS & CORE APP SCRIPT -->
+    <script>
+        // Web Audio API Siren Synthesis for emergency alerts
+        function playEmergencyAlertSound() {
+            try {
+                const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+                const osc = audioCtx.createOscillator();
+                const gain = audioCtx.createGain();
+                
+                osc.type = 'sawtooth';
+                osc.frequency.setValueAtTime(880, audioCtx.currentTime); 
+                osc.frequency.exponentialRampToValueAtTime(440, audioCtx.currentTime + 0.6);
+                
+                gain.gain.setValueAtTime(0.4, audioCtx.currentTime);
+                gain.gain.exponentialRampToValueAtTime(0.01, audioCtx.currentTime + 0.6);
+
+                osc.connect(gain);
+                gain.connect(audioCtx.destination);
+                
+                osc.start();
+                osc.stop(audioCtx.currentTime + 0.6);
+            } catch (e) {
+                console.log("Audio play context initialized.");
+            }
+        }
+
+        /**
+         * INITIAL SAMPLE DATA FOR SMKN 5 MAKASSAR
+         */
+        const INITIAL_DUMMY_REPORTS = [
+            {
+                id: 'RPT-1001',
+                reporterName: 'Ahmad Resky',
+                reporterPhone: '081234567890',
+                reporterClass: 'X ELIN 1',
+                isAnon: false,
+                datetime: '2026-11-08T10:30',
+                location: 'Kantin Belakang Lab Elektronika',
+                gpsCoords: '-5.147665, 119.432732',
+                category: 'Perundungan Verbal',
+                urgency: 'Sedang',
+                photo: null,
+                video: null,
+                description: 'Diejek secara berulang oleh oknum senior saat mengantre di kantin sekolah.',
+                status: 'Belum Diproses',
+                counselorNotes: '',
+                createdAt: new Date(Date.now() - 3600000 * 24).toISOString()
+            },
+            {
+                id: 'RPT-1002',
+                reporterName: 'Siswa Anonim',
+                reporterPhone: '',
+                reporterClass: 'XI MEKA',
+                isAnon: true,
+                datetime: '2026-11-07T14:15',
+                location: 'Bengkel Mekatronika',
+                gpsCoords: '',
+                category: 'Pemerasan / Pemalakan',
+                urgency: 'Darurat',
+                photo: null,
+                video: null,
+                description: 'Terjadi pemaksaan meminta uang kas kelas secara kasar di ruang praktek.',
+                status: 'Dalam Bimbingan',
+                counselorNotes: 'Telah dilakukan pemanggilan ketua kelas dan wali kelas XI MEKA.',
+                createdAt: new Date(Date.now() - 3600000 * 48).toISOString()
+            }
+        ];
+
+        // Global Application State
+        let reports = [];
+        let currentPhotoBase64 = null;
+        let currentRecordedVideoBase64 = null;
+        let activeModalReportId = null;
+
+        // Media Stream & Recording Variables
+        let mediaStream = null;
+        let mediaRecorder = null;
+        let recordedChunks = [];
+
+        // App Initialization
+        document.addEventListener('DOMContentLoaded', () => {
+            loadReportsFromStorage();
+            updateNotificationStatusUI();
+            
+            // Set default datetime picker to current local time
+            const now = new Date();
+            now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
+            document.getElementById('incident-datetime').value = now.toISOString().slice(0, 16);
+        });
+
+        // LocalStorage Logic
+        function loadReportsFromStorage() {
+            const saved = localStorage.getItem('smkn5_bk_reports_v3');
+            if (saved) {
+                try {
+                    reports = JSON.parse(saved);
+                } catch(e) {
+                    reports = [...INITIAL_DUMMY_REPORTS];
+                }
+            } else {
+                reports = [...INITIAL_DUMMY_REPORTS];
+                saveReportsToStorage();
+            }
+            updateMetrics();
+            renderReportsTable();
+        }
+
+        function saveReportsToStorage() {
+            localStorage.setItem('smkn5_bk_reports_v3', JSON.stringify(reports));
+        }
+
+        function resetToDummyData() {
+            if (confirm("Apakah Anda yakin ingin mengembalikan data sampel laporan BK SMKN 5 Makassar?")) {
+                reports = [...INITIAL_DUMMY_REPORTS];
+                saveReportsToStorage();
+                updateMetrics();
+                renderReportsTable();
+            }
+        }
+
+        // View Switching & Teacher Access Security
+        function promptPinAndSwitchView() {
+            const isTeacherVisible = !document.getElementById('view-teacher').classList.contains('hidden');
+            if (isTeacherVisible) {
+                switchView('student');
+                return;
+            }
+
+            const pin = prompt("🔒 Masukkan PIN Keamanan Guru BK SMKN 5 Makassar (Default: 1234):");
+            if (pin === "1234") {
+                switchView('teacher');
+            } else if (pin !== null) {
+                alert("❌ PIN Salah! Akses khusus untuk Tim Guru BK.");
+            }
+        }
+
+        function switchView(mode) {
+            const studentView = document.getElementById('view-student');
+            const teacherView = document.getElementById('view-teacher');
+            const btnStudent = document.getElementById('btn-mode-student');
+            const btnTeacher = document.getElementById('btn-mode-teacher');
+
+            if (mode === 'student') {
+                studentView.classList.remove('hidden');
+                teacherView.classList.add('hidden');
+                btnStudent.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition duration-200 bg-emerald-500 text-slate-950 shadow-md";
+                btnTeacher.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition duration-200 text-slate-400 hover:text-white";
+                document.getElementById('mobile-toggle-text').innerText = "Dashboard BK";
+            } else {
+                studentView.classList.add('hidden');
+                teacherView.classList.remove('hidden');
+                btnTeacher.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition duration-200 bg-emerald-500 text-slate-950 shadow-md";
+                btnStudent.className = "px-4 py-1.5 rounded-lg text-xs font-bold transition duration-200 text-slate-400 hover:text-white";
+                document.getElementById('mobile-toggle-text').innerText = "Form Pelaporan";
+                renderReportsTable();
+            }
+        }
+
+        // GPS Geolocation API Integration
+        function getCurrentLocationGPS() {
+            const statusBadge = document.getElementById('gps-status-badge');
+            const gpsInput = document.getElementById('incident-gps');
+
+            if (!navigator.geolocation) {
+                statusBadge.innerText = "Geolocation tidak didukung browser ini.";
+                return;
+            }
+
+            statusBadge.innerText = "Mengambil koordinat GPS...";
+
+            navigator.geolocation.getCurrentPosition(
+                (position) => {
+                    const lat = position.coords.latitude.toFixed(6);
+                    const lng = position.coords.longitude.toFixed(6);
+                    gpsInput.value = `${lat}, ${lng}`;
+                    statusBadge.innerHTML = `<span class="text-emerald-400 font-bold"><i class="fa-solid fa-circle-check"></i> Koordinat Terdeteksi (${lat}, ${lng})</span>`;
+                },
+                (error) => {
+                    statusBadge.innerText = "Gagal mengambil GPS. Izinkan lokasi perangkat.";
+                },
+                { enableHighAccuracy: true, timeout: 10000 }
+            );
+        }
+
+        // Live Video Recording API
+        async function startCameraLive() {
+            const cameraContainer = document.getElementById('camera-container');
+            const videoFeed = document.getElementById('webcam-feed');
+            const previewVideo = document.getElementById('recorded-video-preview');
+            const btnRecord = document.getElementById('btn-record-video');
+
+            try {
+                mediaStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: true });
+                videoFeed.srcObject = mediaStream;
+                videoFeed.classList.remove('hidden');
+                previewVideo.classList.add('hidden');
+                cameraContainer.classList.remove('hidden');
+                btnRecord.disabled = false;
+            } catch (err) {
+                alert("Tidak dapat mengakses kamera/mikrofon. Pastikan telah diizinkan pada browser.");
+            }
+        }
+
+        function toggleRecordVideo() {
+            const btnRecord = document.getElementById('btn-record-video');
+            const statusTag = document.getElementById('recording-status-tag');
+            const videoFeed = document.getElementById('webcam-feed');
+            const previewVideo = document.getElementById('recorded-video-preview');
+
+            if (mediaRecorder && mediaRecorder.state === "recording") {
+                // Stop Recording
+                mediaRecorder.stop();
+                btnRecord.innerHTML = `<i class="fa-solid fa-circle"></i> Rekam Ulang`;
+                statusTag.classList.add('hidden');
+            } else {
+                // Start Recording
+                recordedChunks = [];
+                mediaRecorder = new MediaRecorder(mediaStream);
+
+                mediaRecorder.ondataavailable = (e) => {
+                    if (e.data.size > 0) recordedChunks.push(e.data);
+                };
+
+                mediaRecorder.onstop = () => {
+                    const blob = new Blob(recordedChunks, { type: 'video/webm' });
+                    const reader = new FileReader();
+                    reader.onloadend = () => {
+                        currentRecordedVideoBase64 = reader.result;
+                        previewVideo.src = currentRecordedVideoBase64;
+                        previewVideo.classList.remove('hidden');
+                        videoFeed.classList.add('hidden');
+                    };
+                    reader.readAsDataURL(blob);
+
+                    if (mediaStream) {
+                        mediaStream.getTracks().forEach(track => track.stop());
+                    }
+                };
+
+                mediaRecorder.start();
+                btnRecord.innerHTML = `<i class="fa-solid fa-square"></i> Berhenti`;
+                statusTag.classList.remove('hidden');
+            }
+        }
+
+        // Anonymous Mode Selector Toggle
+        function toggleAnonMode(isAnon) {
+            const nameInput = document.getElementById('reporter-name');
+            if (isAnon) {
+                nameInput.value = "Siswa Anonim (Rahasia)";
+                nameInput.readOnly = true;
+                nameInput.classList.add('bg-slate-800/80', 'text-slate-400');
+            } else {
+                nameInput.value = "";
+                nameInput.readOnly = false;
+                nameInput.classList.remove('bg-slate-800/80', 'text-slate-400');
+                nameInput.focus();
+            }
+        }
+
+        // Photo Attachment Handler
+        function previewUploadedImage(event) {
+            const file = event.target.files[0];
+            if (!file) return;
+
+            if (file.size > 5 * 1024 * 1024) {
+                alert("Ukuran file foto terlalu besar! Maksimal 5MB.");
+                return;
+            }
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                currentPhotoBase64 = e.target.result;
+                document.getElementById('photo-preview-img').src = currentPhotoBase64;
+                document.getElementById('photo-preview-box').classList.remove('hidden');
+                document.getElementById('upload-label-text').innerText = file.name;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        function removePhoto() {
+            currentPhotoBase64 = null;
+            document.getElementById('evidence-photo').value = '';
+            document.getElementById('photo-preview-box').classList.add('hidden');
+            document.getElementById('upload-label-text').innerText = "Pilih File Foto";
+        }
+
+        // Submit New Report Logic
+        function submitReport(e) {
+            e.preventDefault();
+
+            const isAnon = document.querySelector('input[name="anon_option"]:checked').value === 'anon';
+            const name = isAnon ? "Siswa Anonim" : document.getElementById('reporter-name').value.trim();
+            const phone = document.getElementById('reporter-phone').value.trim();
+            const studentClass = document.getElementById('reporter-class').value;
+            const datetime = document.getElementById('incident-datetime').value;
+            const location = document.getElementById('incident-location').value.trim();
+            const gps = document.getElementById('incident-gps').value;
+            const category = document.getElementById('incident-category').value;
+            const urgency = document.querySelector('input[name="urgency_level"]:checked').value;
+            const description = document.getElementById('incident-description').value.trim();
+
+            const newReport = {
+                id: 'RPT-' + Math.floor(1000 + Math.random() * 9000),
+                reporterName: name,
+                reporterPhone: phone,
+                reporterClass: studentClass,
+                isAnon: isAnon,
+                datetime: datetime,
+                location: location,
+                gpsCoords: gps,
+                category: category,
+                urgency: urgency,
+                photo: currentPhotoBase64,
+                video: currentRecordedVideoBase64,
+                description: description,
+                status: 'Belum Diproses',
+                counselorNotes: '',
+                createdAt: new Date().toISOString()
+            };
+
+            // Save to State & LocalStorage
+            reports.unshift(newReport);
+            saveReportsToStorage();
+            updateMetrics();
+
+            // Audio Alert & Web Push Trigger
+            playEmergencyAlertSound();
+            triggerWebPushNotification(newReport);
+
+            alert(`✅ LAPORAN TERKIRIM!\n\nLaporan kamu telah diterima oleh Tim BK SMKN 5 Makassar secara aman.\nID Laporan: ${newReport.id}`);
+
+            // Reset Form State
+            document.getElementById('bullying-form').reset();
+            removePhoto();
+            toggleAnonMode(false);
+            currentRecordedVideoBase64 = null;
+            document.getElementById('camera-container').classList.add('hidden');
+            document.getElementById('gps-status-badge').innerText = "GPS belum diambil";
+
+            // Redirect to Dashboard
+            switchView('teacher');
+        }
+
+        // Push Notifications
+        function requestNotificationPermission() {
+            if (!("Notification" in window)) {
+                alert("Browser tidak mendukung Web Push Notification.");
+                return;
+            }
+
+            Notification.requestPermission().then(permission => {
+                updateNotificationStatusUI();
+                if (permission === "granted") {
+                    new Notification("BK SMKN 5 Makassar", {
+                        body: "Notifikasi Laporan Masuk HP Aktif!",
+                        icon: "https://cdn-icons-png.flaticon.com/512/1067/1067357.png"
+                    });
+                }
+            });
+        }
+
+        function updateNotificationStatusUI() {
+            const btnText = document.getElementById('notif-status-text');
+            if (!("Notification" in window)) {
+                btnText.innerText = "Notifikasi Tidak Didukung";
+                return;
+            }
+            if (Notification.permission === "granted") {
+                btnText.innerText = "Notifikasi HP: Aktif ✓";
+            } else if (Notification.permission === "denied") {
+                btnText.innerText = "Notifikasi Ditolak Browser";
+            } else {
+                btnText.innerText = "Aktifkan Notifikasi HP";
+            }
+        }
+
+        function triggerWebPushNotification(report) {
+            if ("Notification" in window && Notification.permission === "granted") {
+                const title = `🚨 LAPORAN PERUNDUNGAN MASUK - SMKN 5 MAKASSAR`;
+                const options = {
+                    body: `Pelapor/Kelas: ${report.reporterClass}\nKategori: ${report.category} (${report.urgency})\nLokasi: ${report.location}`,
+                    icon: "https://cdn-icons-png.flaticon.com/512/1067/1067357.png",
+                    requireInteraction: true
+                };
+                new Notification(title, options);
+            }
+        }
+
+        // Compute Metrics Summary
+        function updateMetrics() {
+            document.getElementById('stat-total').innerText = reports.length;
+            document.getElementById('stat-baru').innerText = reports.filter(r => r.status === 'Belum Diproses').length;
+            document.getElementById('stat-proses').innerText = reports.filter(r => r.status === 'Dalam Bimbingan').length;
+            document.getElementById('stat-selesai').innerText = reports.filter(r => r.status === 'Selesai').length;
+        }
+
+        // Render Dashboard Table
+        function renderReportsTable() {
+            const tbody = document.getElementById('reports-table-body');
+            const classFilter = document.getElementById('filter-class').value;
+            const statusFilter = document.getElementById('filter-status').value;
+
+            const filtered = reports.filter(r => {
+                const matchesClass = classFilter === 'ALL' || r.reporterClass === classFilter;
+                const matchesStatus = statusFilter === 'ALL' || r.status === statusFilter;
+                return matchesClass && matchesStatus;
+            });
+
+            document.getElementById('table-count-badge').innerText = `${filtered.length} Laporan`;
+
+            if (filtered.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="p-8 text-center text-slate-500">
+                            <i class="fa-solid fa-folder-open text-3xl mb-2 text-slate-600 block"></i>
+                            Tidak ada data laporan yang cocok dengan filter.
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+
+            tbody.innerHTML = filtered.map(r => {
+                let urgencyBadge = '';
+                if (r.urgency === 'Darurat') {
+                    urgencyBadge = `<span class="px-2 py-0.5 rounded bg-red-500/20 text-red-400 font-bold border border-red-500/30">🚨 Darurat</span>`;
+                } else if (r.urgency === 'Sedang') {
+                    urgencyBadge = `<span class="px-2 py-0.5 rounded bg-amber-500/20 text-amber-400 font-bold border border-amber-500/30">⚠️ Sedang</span>`;
+                } else {
+                    urgencyBadge = `<span class="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-400 font-bold border border-emerald-500/30">ℹ️ Rendah</span>`;
+                }
+
+                let statusBadge = '';
+                if (r.status === 'Belum Diproses') {
+                    statusBadge = `<span class="px-2.5 py-0.5 rounded-full bg-red-600 text-white font-bold text-[10px] animate-pulse">BELUM DIPROSES</span>`;
+                } else if (r.status === 'Dalam Bimbingan') {
+                    statusBadge = `<span class="px-2.5 py-0.5 rounded-full bg-amber-500 text-slate-950 font-bold text-[10px]">DALAM BIMBINGAN</span>`;
+                } else {
+                    statusBadge = `<span class="px-2.5 py-0.5 rounded-full bg-emerald-500 text-slate-950 font-bold text-[10px]">SELESAI</span>`;
+                }
+
+                const gpsLink = r.gpsCoords 
+                    ? `<a href="https://maps.google.com/?q=${r.gpsCoords}" target="_blank" class="text-emerald-400 underline font-bold"><i class="fa-solid fa-location-dot text-red-400"></i> Peta GPS</a>` 
+                    : `<span class="text-slate-500">Manual</span>`;
+
+                const mediaBadges = [];
+                if (r.photo) mediaBadges.push(`<span class="text-emerald-400 font-bold"><i class="fa-solid fa-image"></i> Foto</span>`);
+                if (r.video) mediaBadges.push(`<span class="text-indigo-400 font-bold"><i class="fa-solid fa-video"></i> Video Live</span>`);
+                const mediaText = mediaBadges.length > 0 ? mediaBadges.join(' + ') : `<span class="text-slate-500">Tidak ada</span>`;
+
+                const formattedDate = new Date(r.createdAt).toLocaleDateString('id-ID', {
+                    day: 'numeric', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit'
+                });
+
+                return `
+                    <tr class="hover:bg-slate-900/50 transition border-b border-slate-800/60">
+                        <td class="p-3.5">
+                            <span class="font-bold text-white block">${r.id}</span>
+                            <span class="text-[10px] text-slate-400">${formattedDate}</span>
+                        </td>
+                        <td class="p-3.5">
+                            <span class="font-bold text-slate-200 block">${r.reporterName}</span>
+                            <span class="text-[10px] bg-slate-800 text-emerald-400 border border-emerald-500/20 px-2 py-0.5 rounded font-mono font-bold inline-block mt-0.5">${r.reporterClass}</span>
+                        </td>
+                        <td class="p-3.5">
+                            <span class="font-semibold text-slate-200 block">${r.category}</span>
+                            <div class="text-[11px] mt-0.5 text-slate-400">${r.location} (${gpsLink})</div>
+                        </td>
+                        <td class="p-3.5">${urgencyBadge}</td>
+                        <td class="p-3.5">${mediaText}</td>
+                        <td class="p-3.5">${statusBadge}</td>
+                        <td class="p-3.5 text-center no-print">
+                            <button onclick="openDetailModal('${r.id}')" class="bg-emerald-500 hover:bg-emerald-400 text-slate-950 text-xs px-3 py-1.5 rounded-lg font-bold shadow transition flex items-center gap-1 mx-auto">
+                                <i class="fa-solid fa-pen-to-square"></i> Penanganan BK
+                            </button>
+                        </td>
+                    </tr>
+                `;
+            }).join('');
+        }
+
+        // Counselor Action Modal & Log Notes
+        function openDetailModal(reportId) {
+            const report = reports.find(r => r.id === reportId);
+            if (!report) return;
+
+            activeModalReportId = reportId;
+            document.getElementById('modal-title').innerText = `Penanganan BK - ${report.id}`;
+
+            const formattedDate = new Date(report.datetime).toLocaleString('id-ID', {
+                dateStyle: 'full', timeStyle: 'short'
+            });
+
+            const photoHTML = report.photo
+                ? `<div class="mt-2">
+                    <p class="font-bold text-slate-300 mb-1">Bukti Foto Kejadian:</p>
+                    <a href="${report.photo}" target="_blank">
+                        <img src="${report.photo}" alt="Bukti Foto" class="max-h-48 rounded-xl border border-slate-700 object-cover shadow-sm">
+                    </a>
+                   </div>`
+                : '';
+
+            const videoHTML = report.video
+                ? `<div class="mt-2">
+                    <p class="font-bold text-slate-300 mb-1">Bukti Video Rekaman Live:</p>
+                    <video src="${report.video}" controls class="w-full max-h-48 rounded-xl border border-slate-700 bg-black"></video>
+                   </div>`
+                : '';
+
+            const gpsHTML = report.gpsCoords
+                ? `<a href="https://maps.google.com/?q=${report.gpsCoords}" target="_blank" class="text-emerald-400 font-bold underline"><i class="fa-solid fa-map-location-dot"></i> Buka Google Maps (${report.gpsCoords})</a>`
+                : `<span class="text-slate-500 italic">Tidak ada koordinat GPS</span>`;
+
+            const modalBody = document.getElementById('modal-body-content');
+            modalBody.innerHTML = `
+                <div class="grid grid-cols-2 gap-3 bg-slate-900/80 p-3.5 rounded-xl border border-slate-800">
+                    <div>
+                        <span class="text-slate-400 text-[10px] uppercase font-bold block">Pelapor / WA</span>
+                        <span class="font-bold text-white text-sm">${report.reporterName}</span>
+                        <span class="text-xs text-slate-400 block">${report.reporterPhone || '-'}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 text-[10px] uppercase font-bold block">Kelas Siswa</span>
+                        <span class="font-bold text-emerald-400 text-sm">${report.reporterClass}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 text-[10px] uppercase font-bold block">Waktu Kejadian</span>
+                        <span class="font-semibold text-slate-300">${formattedDate}</span>
+                    </div>
+                    <div>
+                        <span class="text-slate-400 text-[10px] uppercase font-bold block">Lokasi & GPS</span>
+                        <span class="font-semibold text-slate-300 block">${report.location}</span>
+                        ${gpsHTML}
+                    </div>
+                </div>
+
+                <div>
+                    <span class="font-bold text-slate-300 block mb-1">Deskripsi / Kronologi Kejadian:</span>
+                    <div class="bg-slate-900 border border-slate-800 p-3.5 rounded-xl text-slate-200 leading-relaxed">
+                        "${report.description}"
+                    </div>
+                </div>
+
+                ${photoHTML}
+                ${videoHTML}
+
+                <hr class="border-slate-800 my-2">
+
+                <!-- FORM UPDATE STATUS & CATATAN GURU BK -->
+                <div class="space-y-3 bg-slate-900/80 p-4 rounded-xl border border-slate-800">
+                    <h4 class="font-bold text-emerald-400 text-xs uppercase tracking-wider flex items-center gap-1.5">
+                        <i class="fa-solid fa-user-shield"></i> Form Catatan Bimbingan Konseling BK
+                    </h4>
+                    
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div>
+                            <label class="block font-bold text-slate-300 mb-1">Status Laporan:</label>
+                            <select id="modal-status-select" class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl p-2 font-bold text-xs focus:ring-emerald-500">
+                                <option value="Belum Diproses" ${report.status === 'Belum Diproses' ? 'selected' : ''}>BELUM DIPROSES</option>
+                                <option value="Dalam Bimbingan" ${report.status === 'Dalam Bimbingan' ? 'selected' : ''}>DALAM BIMBINGAN BK</option>
+                                <option value="Selesai" ${report.status === 'Selesai' ? 'selected' : ''}>SELESAI (Tuntas)</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label class="block font-bold text-slate-300 mb-1">Catatan Hasil Konseling & Tindak Lanjut Guru BK:</label>
+                        <textarea id="modal-counselor-notes" rows="3" placeholder="Tuliskan jadwal konseling, hasil mediasi, atau catatan rekomendasi..." class="w-full bg-slate-950 border border-slate-700 text-white rounded-xl p-3 text-xs focus:ring-emerald-500">${report.counselorNotes || ''}</textarea>
+                    </div>
+                </div>
+            `;
+
+            // Setup WhatsApp Alert Trigger
+            const gpsLinkText = report.gpsCoords ? `https://maps.google.com/?q=${report.gpsCoords}` : 'Tidak ada GPS';
+            const waText = encodeURIComponent(
+                `🚨 *LAPORAN PERUNDUNGAN BK SMKN 5 MAKASSAR*\n` +
+                `ID: ${report.id}\n` +
+                `Pelapor: ${report.reporterName} (${report.reporterClass})\n` +
+                `No WA: ${report.reporterPhone || '-'}\n` +
+                `Kategori: ${report.category} (${report.urgency})\n` +
+                `Lokasi: ${report.location}\n` +
+                `Peta GPS: ${gpsLinkText}\n\n` +
+                `Kronologi: ${report.description}`
+            );
+            document.getElementById('modal-wa-btn').onclick = () => {
+                window.open(`https://api.whatsapp.com/send?text=${waText}`, '_blank');
+            };
+
+            // Show Modal Window
+            const modal = document.getElementById('detail-modal');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.remove('scale-95');
+        }
+
+        function closeDetailModal() {
+            const modal = document.getElementById('detail-modal');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            modal.querySelector('div').classList.add('scale-95');
+            activeModalReportId = null;
+        }
+
+        function saveModalChanges() {
+            if (!activeModalReportId) return;
+            const report = reports.find(r => r.id === activeModalReportId);
+            if (!report) return;
+
+            report.status = document.getElementById('modal-status-select').value;
+            report.counselorNotes = document.getElementById('modal-counselor-notes').value.trim();
+
+            saveReportsToStorage();
+            updateMetrics();
+            renderReportsTable();
+            closeDetailModal();
+
+            alert("✅ Catatan dan status bimbingan konseling berhasil disimpan!");
+        }
+    </script>
+</body>
+</html>
