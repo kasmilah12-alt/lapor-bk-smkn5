@@ -673,6 +673,12 @@
 
     <!-- AUDIO SYNTHESIS & CORE APP SCRIPT -->
     <script>
+        // =========================================================================
+        // 1. KONFIGURASI DATABASE GOOGLE SHEETS (WEBHOOK URL)
+        // Tempelkan URL Web App dari Google Apps Script Anda di bawah ini:
+        // =========================================================================
+        const GOOGLE_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbyp1gbgUcY1tt52wEq0u25tgWG7dOTQ8YbAX0X7ibzjpP3GD8K7TqZqxaqwoSPOEwj1/exec";
+        
         // Web Audio API Siren Synthesis for emergency alerts
         function playEmergencyAlertSound() {
             try {
